@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare Pages
+name: Unzip and Deploy
 
 on:
   push:
@@ -6,21 +6,25 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  unzip:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      deployments: write
+      contents: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: vector-3d
-          directory: .
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
+      
+      - name: Unzip vector-3d.zip
+        run: |
+          unzip vector-3d.zip
+          mv offline-app/* .
+          mv offline-app/.* . 2>/dev/null || true
+          rm -rf vector-3d.zip offline-app/
+      
+      - name: Commit unzipped files
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .
+          git diff --cached --quiet || git commit -m "Unzip vector-3d"
+          git push
           
