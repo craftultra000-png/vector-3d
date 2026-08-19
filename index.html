@@ -44,5 +44,10 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+        navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(() => undefined);
+      }
+    </script>
   </body>
 </html>
